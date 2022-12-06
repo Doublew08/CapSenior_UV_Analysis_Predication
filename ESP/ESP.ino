@@ -43,7 +43,7 @@ String readDHTHumidity() {
 String readVEMLUV() {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   // Read Humidity value from the string recieved from arduino
-  for (int i=20; i<Serial2.readString().length(); i++) Serial.println(Serial2.readString()[i]);
+
 
     int h = (String(Serial2.readString()[3]) + String(Serial2.readString()[4])).toInt(); 
     if (isnan(h)) {
@@ -156,10 +156,14 @@ void setup() {
 }
 void loop() {
   Serial.print("Message Received: ");
-  delay(1000);
+ 
   Serial.println(Serial2.readString());
-  
-  /*  Serial.println((Serial2.readString()[3]));
+  delay(1000);
+  /*
+   for (int i=28; i<Serial2.readString().length(); i++) {
+    Serial.print(Serial2.readString()[i]);
+  }
+    Serial.println((Serial2.readString()[3]));
   String tempR = String(Serial2.readString()[3]) + String(Serial2.readString()[4]);
   String HumidR = String(Serial2.readString()[14]) + String(Serial2.readString()[15]);
   Serial.print(tempR);
