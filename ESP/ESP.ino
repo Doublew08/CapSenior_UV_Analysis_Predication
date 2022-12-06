@@ -4,8 +4,8 @@
 #include "soc/timer_group_reg.h"
 #define RXp2 16
 #define TXp2 17
-const char* ssid = "Ahmedx";
-const char* password = "11111111";
+const char* ssid = "LifeIsGreat";
+const char* password = "N0tReally";
 AsyncWebServer server(80);
 /* four data types being converted to char array */
 char charArr[]="char array";
@@ -30,6 +30,21 @@ String readDHTTemperature() {
 String readDHTHumidity() {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   // Read Humidity value from the string recieved from arduino
+    int h = (String(Serial2.readString()[3]) + String(Serial2.readString()[4])).toInt(); 
+    if (isnan(h)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return "--";
+  }
+  else {
+    Serial.println(h);
+    return String(h);
+  }
+}
+String readVEMLUV() {
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  // Read Humidity value from the string recieved from arduino
+  for (int i=20; i<Serial2.readString().length(); i++) Serial.println(Serial2.readString()[i]);
+
     int h = (String(Serial2.readString()[3]) + String(Serial2.readString()[4])).toInt(); 
     if (isnan(h)) {
     Serial.println("Failed to read from DHT sensor!");
@@ -141,7 +156,7 @@ void setup() {
 }
 void loop() {
   Serial.print("Message Received: ");
-  delay(2000);
+  delay(1000);
   Serial.println(Serial2.readString());
   
   /*  Serial.println((Serial2.readString()[3]));

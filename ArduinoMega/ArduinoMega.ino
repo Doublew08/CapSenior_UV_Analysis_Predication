@@ -1,10 +1,10 @@
-#include <dht.h>
-//#include <U8g2lib.h>
+#include "DHT.h"
 #include <Wire.h>
 #include "Adafruit_VEML6070.h"
-#define dht_apin A0 // Analog Pin sensor is connected to
 Adafruit_VEML6070 uv = Adafruit_VEML6070();
-dht DHT;
+#define DHTPIN A0          // what digital pin we're connected to
+#define DHTTYPE DHT11     // DHT11
+DHT dht(DHTPIN, DHTTYPE);
 String convert_to_risk_level(int reading) 
 {
   int integration_time = 4;   //available for Integration-Time 1, 2, 4
@@ -35,6 +35,7 @@ void setup(){
   Serial.println("DHT11 Humidity & temperature Sensor\n\n");
   Serial.println("VEML6070 Test");
   uv.begin(VEML6070_1_T);  // pass in the integration time constant
+  dht.begin();
   delay(1000);//Wait before accessing Sensor
  
 }//end "setup()"
@@ -42,15 +43,16 @@ void setup(){
 void loop(){
   //Start of Program 
  
-    DHT.read11(dht_apin);
     Serial.print("h= ");
-    Serial.print(DHT.humidity);
-    Serial.print("%  ");
+    Serial.print(dht.readHumidity());
+    Serial.print("%, ");
     Serial.print("t= ");
-    Serial.print(DHT.temperature); 
-    Serial.print("C  ");
+    Serial.print(dht.readTemperature()); 
+    Serial.print("°C, ");
     Serial.print("UV= ");
-    Serial.println(convert_to_risk_level(uv.readUV()));
+    Serial.println(uv.readUV());
+    /*Serial.print(", ");
+    Serial.println(convert_to_risk_level(uv.readUV()));*/
     delay(1500);//Wait 5 seconds before accessing sensor again.
  
   //Fastest should be once every two seconds.
