@@ -4,8 +4,8 @@
 #include "soc/timer_group_reg.h"
 #define RXp2 16
 #define TXp2 17
-const char* ssid = "LifeIsGreat";
-const char* password = "N0tReally";
+const char* ssid = "AHMEDxx";
+const char* password = "0000000000";
 AsyncWebServer server(80);
 /* four data types being converted to char array */
 char charArr[]="char array";
@@ -156,7 +156,6 @@ void setup() {
 }
 void loop() {
   Serial.print("Message Received: ");
- 
   Serial.println(Serial2.readString());
   delay(1000);
   /*
