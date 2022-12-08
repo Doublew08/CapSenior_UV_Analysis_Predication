@@ -5,8 +5,8 @@
 #define TXp2 17
 //-------------------------------------------------------------------
 //enter WIFI credentials
-const char* ssid     = "LifeIsGreat";
-const char* password = "N0tReally";
+const char* ssid     = "school";
+const char* password = "stem@2020";
 //-------------------------------------------------------------------
 //enter domain name and path
 //http://www.example.com/sensordata.php
@@ -57,15 +57,7 @@ void loop() {
   if(WiFi.status()== WL_CONNECTED){
     if(millis() - lastMillis > interval) {
        //Send an HTTP POST request every interval seconds
-       //upload_temperature();
-         String ak_data;
-          ak_data = "api_key="+PROJECT_API_KEY;
-            WiFiClient client;
-            HTTPClient http;
-            http.begin(client, SERVER_NAME);
-            http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-            int httpResponseCode = http.POST(ak_data + "&" + data);
-            lastMillis = millis();
+       upload_temperature();  
     }
   }
   //-----------------------------------------------------------------
@@ -84,7 +76,7 @@ String UV(){
   return UVI;
 }
 void upload_temperature()
-{
+{ 
   //--------------------------------------------------------------------------------
   //Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   //Read temperature as Celsius (the default)
@@ -104,11 +96,11 @@ void upload_temperature()
   //°C
   String humidity = String(h);
   String temperature = String(t);
-  String UV_index = String(UV());
+  //String UV = UV();
 
   Serial.println("Temperature: "+temperature);
   Serial.println("Humidity: "+humidity);
-  Serial.println("UV: "+UV_index);
+  Serial.println("UV: "+UV());
   Serial.println("--------------------------");
   //--------------------------------------------------------------------------------
   //HTTP POST request data
@@ -116,7 +108,7 @@ void upload_temperature()
   temperature_data = "api_key="+PROJECT_API_KEY;
   temperature_data += "&temperature="+temperature;
   temperature_data += "&humidity="+humidity;
-  temperature_data += "&UV_index="+UV_index;
+  temperature_data += "&UV="+UV();
 
   Serial.print("temperature_data: ");
   Serial.println(temperature_data);
