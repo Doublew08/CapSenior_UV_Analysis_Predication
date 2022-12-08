@@ -2,10 +2,11 @@
 #include "ESPAsyncWebServer.h"
 #include "soc/timer_group_struct.h"
 #include "soc/timer_group_reg.h"
+#include "soc/rtc_wdt.h"
 #define RXp2 16
 #define TXp2 17
-const char* ssid = "AHMEDxx";
-const char* password = "0000000000";
+const char* ssid = "LifeIsGreat";
+const char* password = "N0tReally";
 AsyncWebServer server(80);
 /* four data types being converted to char array */
 char charArr[]="char array";
@@ -14,10 +15,10 @@ int integer = 7683;
 float decimalNumber = 768.30000;
 
 String readDHTTemperature() {
-  int t = (String(Serial2.readString()[14]) + String(Serial2.readString()[15])).toInt();
   TIMERG0.wdt_wprotect=TIMG_WDT_WKEY_VALUE;
   TIMERG0.wdt_feed=1;
   TIMERG0.wdt_wprotect=0;
+  int t = (String(Serial2.readString()[14]) + String(Serial2.readString()[15])).toInt();
   if (isnan(t)) {    
     Serial.println("Failed to read from DHT sensor!");
     return "--";
@@ -40,6 +41,7 @@ String readDHTHumidity() {
     return String(h);
   }
 }
+/*
 String readVEMLUV() {
   // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
   // Read Humidity value from the string recieved from arduino
@@ -54,6 +56,13 @@ String readVEMLUV() {
     Serial.println(h);
     return String(h);
   }
+}*/
+String UV(){
+  String UVI;
+  for (int i=28; i<Serial2.readString().length(); i++){
+    UVI += (Serial2.readString()[i]);
+  }
+  return UVI;
 }
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
@@ -91,6 +100,12 @@ const char index_html[] PROGMEM = R"rawliteral(
     <span id="humidity">%HUMIDITY%</span>
     <sup class="units">&percnt;</sup>
   </p>
+   <p>
+    <i class="fas fa-tint" style="color:#00add6;"></i> 
+    <span class="dht-labels">UV</span>
+    <span id="uv">%UV%</span>
+    <sup class="units">&percnt;</sup>
+  </p>
 </body>
 <script>
 setInterval(function ( ) {
@@ -101,6 +116,16 @@ setInterval(function ( ) {
     }
   };
   xhttp.open("GET", "/temperature", true);
+  xhttp.send();
+}, 10000 ) ;
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("UV").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/uv", true);
   xhttp.send();
 }, 10000 ) ;
 
@@ -125,10 +150,12 @@ String processor(const String& var){
   else if(var == "HUMIDITY"){
     return readDHTHumidity();
   }
+  else if(var == "uv"){
+    return UV();
+   }
   return String();
 }
 void setup() {
-
   Serial.begin(115200);
    WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -148,24 +175,19 @@ void setup() {
   });
   server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", readDHTHumidity().c_str());
-  });    
+  });   
+  server.on("/UV", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", UV().c_str());
+  });  
   // Start server
   server.begin();
   Serial2.begin(9600, SERIAL_8N1, RXp2, TXp2);
   Serial.println("Waiting for a client to connect....");
 }
 void loop() {
-  Serial.print("Message Received: ");
+  /*Serial.print("Message Received: ");
   Serial.println(Serial2.readString());
-  delay(1000);
-  /*
-   for (int i=28; i<Serial2.readString().length(); i++) {
-    Serial.print(Serial2.readString()[i]);
-  }
-    Serial.println((Serial2.readString()[3]));
-  String tempR = String(Serial2.readString()[3]) + String(Serial2.readString()[4]);
-  String HumidR = String(Serial2.readString()[14]) + String(Serial2.readString()[15]);
-  Serial.print(tempR);
-  Serial.print(" ");
-  Serial.println(HumidR);*/
+  //for (int i=28; i<Serial2.readString().length(); i++) Serial.print(Serial2.readString()[i]);
+  Serial.print(UV());*/
+  delay(100);
 }
