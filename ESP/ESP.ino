@@ -1,12 +1,14 @@
 #include <WiFiClient.h>
 #include <HTTPClient.h>
 #include "WiFi.h"
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 #define RXp2 16
 #define TXp2 17
 //-------------------------------------------------------------------
 //enter WIFI credentials
-const char* ssid     = "LifeIsGreat";
-const char* password = "N0tReally";
+const char* ssid     = "AHMEDx";
+const char* password = "00000000";
 //-------------------------------------------------------------------
 //enter domain name and path
 //http://www.example.com/sensordata.php
@@ -19,7 +21,14 @@ String PROJECT_API_KEY = "hello world";
 //Send an HTTP POST request every 30 seconds
 unsigned long lastMillis = 0;
 long interval = 5000;
+// Define NTP Client to get time
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP);
 //-------------------------------------------------------------------
+// Variables to save date and time
+String formattedDate;
+String dayStamp;
+String timeStamp;
 
 /*
  * *******************************************************************
@@ -44,10 +53,27 @@ void setup() {
   Serial.println("Timer set to 5 seconds (timerDelay variable),");
   Serial.println("it will take 5 seconds before publishing the first reading.");
   //-----------------------------------------------------------------
-
+// Initialize a NTPClient to get time
+  timeClient.begin();
+  // Set offset time in seconds to adjust for your timezone, for example:
+  // GMT +1 = 3600
+  // GMT +8 = 28800
+  // GMT -1 = -3600
+  // GMT 0 = 0
+  timeClient.setTimeOffset(7200);
 }
 
 void loop() {
+  while(!timeClient.update()) {
+    timeClient.forceUpdate();
+  }
+  formattedDate = timeClient.getFormattedTime();
+  int splitT = formattedDate.indexOf("T");
+  dayStamp = formattedDate.substring(0, splitT);
+  Serial.println(dayStamp);
+  // Extract time
+  timeStamp = formattedDate.substring(splitT+1, formattedDate.length()-1);
+  Serial.println(timeStamp);
   // put your main code here, to run repeatedly:
   Serial.print("Message Received: ");
   String data = Serial2.readString();
