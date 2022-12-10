@@ -43,3 +43,4 @@ function escape_data($data) {
     $data = htmlspecialchars($data);
     return $data;
 }
+?>
