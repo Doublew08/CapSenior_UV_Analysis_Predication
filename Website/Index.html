@@ -1,0 +1,172 @@
+<!DOCTYPE HTML><html>
+<!-- Rui Santos - Complete project details at https://RandomNerdTutorials.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software. -->
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <style>
+    body {
+      min-width: 310px;
+    	max-width: 800px;
+    	height: 400px;
+      margin: 0 auto;
+    }
+    h2 {
+      font-family: Arial;
+      font-size: 2.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>ESP Weather Station</h2>
+  <div id="chart-temperature" class="container"></div>
+  <div id="chart-humidity" class="container"></div>
+  <div id="chart-pressure" class="container"></div>
+</body>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp  } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-analytics.js";
+  import {getDatabase, set, get, update, remove, ref, child} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyDh97MwB8KWgPNi28444v48DQvjE9pZLm8",
+    authDomain: "cap312-ef948.firebaseapp.com",
+    databaseURL: "https://cap312-ef948-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "cap312-ef948",
+    storageBucket: "cap312-ef948.appspot.com",
+    messagingSenderId: "800156505950",
+    appId: "1:800156505950:web:799c3221ef2493a49be1cf",
+    measurementId: "G-26MS7GZ3PB"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const dbRef = ref(getDatabase());
+  
+  let name = "0";
+  function refreshData()
+  {
+get(dbRef).then((snapshot) => {
+  if (snapshot.exists()) {
+  var dataa = snapshot.val()["UsersData"]["CIcQtf1r7DSkpwNDjOqEkh42Ire2"]["readings"];
+  let count = 1;
+  for(let x in dataa)
+  {
+    if(count < Object.keys(dataa).length)
+    {
+      count += 1;
+    }
+    else
+    {
+        console.log(dataa[x]);
+        name = Object.values(dataa[x]).toString();
+        //document.cookie = "data=" + name;
+        const myArray = name.split("&");
+        var valT = myArray[3];
+        var valH = myArray[4];
+        var valP = myArray[5];
+        //console.log(valT.slice(7, name.length));
+        count = 0;
+        renew(valT.slice(7, name.length),chartT);
+        renew(valH.slice(7, name.length),chartH);
+        renew(valP.slice(7, name.length),chartP);
+    }
+  }
+    
+  } else {
+    console.log("No data available");
+  }
+}).catch((error) => {
+  console.error(error);
+});
+  }
+setInterval(refreshData, 1000);
+
+function renew(val,Chrt) {
+      var x = (new Date()).getTime(),
+          y = parseFloat(val);
+      //console.log(this.responseText);
+      //console.log(val);
+      if(Chrt.series[0].data.length > 40) {
+        Chrt.series[0].addPoint([x, y], true, true, true);
+      } else {
+        Chrt.series[0].addPoint([x, y], true, false, true);
+      }
+    }
+var chartT = new Highcharts.Chart({
+  chart:{ renderTo : 'chart-temperature' },
+  title: { text: ' Temperature' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#059e8a' }
+  },
+  xAxis: { type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Temperature (Celsius)' }
+    //title: { text: 'Temperature (Fahrenheit)' }
+  },
+  credits: { enabled: false }
+});
+var chartH = new Highcharts.Chart({
+  chart:{ renderTo:'chart-humidity' },
+  title: { text: 'Humidity' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    }
+  },
+  xAxis: {
+    type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Humidity (%)' }
+  },
+  credits: { enabled: false }
+});
+var chartP = new Highcharts.Chart({
+  chart:{ renderTo:'chart-pressure' },
+  title: { text: 'UV Index' },
+  series: [{
+    showInLegend: false,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: { color: '#18009c' }
+  },
+  xAxis: {
+    type: 'datetime',
+    dateTimeLabelFormats: { second: '%H:%M:%S' }
+  },
+  yAxis: {
+    title: { text: 'Pressure (hPa)' }
+  },
+  credits: { enabled: false }
+});
+</script>
+</html>
